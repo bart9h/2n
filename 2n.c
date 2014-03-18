@@ -167,10 +167,19 @@ bool add_random_number (struct Game* game)
 
 void draw (struct Game* game)
 {
+	static const char* colors[] = {
+		"1;30", //empty
+		"0;37", "1;37", "0;36", "1;36", // 2, 4, 8, 16
+		"0;34", "1;34", "0;32", "1;32", // 32, 64, 128, 256
+		"0;33", "1;33", "0;31", "1;31", // 512, 1024, 2048, 4096
+		"1;35", "1;45", NULL // 8192, !!!!!!
+	};
+
 	printf("\e[1;1f\e[2J");
 	for (unsigned j = 0;  j < 4;  ++j) {
 		for (unsigned i = 0;  i < 4;  ++i) {
 			unsigned n = game->board[j][i];
+			printf("\e[%sm", colors[n]);
 			if (n == 0)
 				printf("     .");
 			else
@@ -241,7 +250,6 @@ int main()
 		}
 
 		draw(game);
-		printf("\n");
 	}
 
 	RawKb_Close();
