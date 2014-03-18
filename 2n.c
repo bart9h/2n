@@ -27,6 +27,10 @@ void itr_init (struct Itr* itr, struct Game* game, char dir, unsigned idx)
 			itr->j = idx;
 			itr->i = 3;
 			break;
+		case 'h':
+			itr->j = idx;
+			itr->i = 0;
+			break;
 		default:
 			ERROR;
 	}
@@ -37,6 +41,8 @@ bool itr_is_last (struct Itr* itr)
 	switch (itr->dir) {
 		case 'l':
 			return (itr->i == 0);
+		case 'h':
+			return (itr->i == 3);
 	}
 	ERROR;
 }
@@ -49,6 +55,9 @@ bool itr_move (struct Itr* itr)
 	switch (itr->dir) {
 		case 'l':
 			--itr->i;
+			return true;
+		case 'h':
+			++itr->i;
 			return true;
 	}
 	ERROR;
@@ -72,6 +81,8 @@ unsigned itr_get_next (struct Itr* itr)
 	switch (itr->dir) {
 		case 'l':
 			return itr->game->board[itr->j][itr->i-1];
+		case 'h':
+			return itr->game->board[itr->j][itr->i+1];
 	}
 	ERROR;
 }
@@ -177,12 +188,12 @@ int main()
 		else if (k == 'c') { /* clear board */
 			game_init(game);
 		}
-		else if (k == 'l') {
+		else if (k == 'l'  ||  k == 'h') {
 			for (int j = 0;  j < 4;  ++j) {
 				struct Itr the_itr;
 				struct Itr* itr = &the_itr;
 
-				itr_init(itr, game, 'l', j);
+				itr_init(itr, game, k, j);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					while (itr_get(itr) == 0) {
 						if (itr_shift(*itr) == false)
@@ -190,7 +201,7 @@ int main()
 					}
 				}
 
-				itr_init(itr, game, 'l', j);
+				itr_init(itr, game, k, j);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					if (itr_get(itr) == itr_get_next(itr)  &&  itr_get(itr) != 0) {
 						itr_set(itr, itr_get(itr) * 2);
