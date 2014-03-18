@@ -96,8 +96,28 @@ int main()
 		else if (k == 'c') { /* clear board */
 			game_init(&game);
 		}
+		else if (k == 'l') {
+			for (int j = 0; j < 4; ++j) {
+				unsigned* line = game.board[j];
+				for (int i = 3; i > 0; --i) {
+					while (line[i] == 0) {
+						bool all_zeros = true;
+						for (int n = i; n > 0; --n) {
+							line[n] = line[n-1];
+							if (line[n] != 0)
+								all_zeros = false;
+						}
+						line[0] = 0;
+						if (all_zeros)
+							break;
+					}
+				}
+			}
+		}
+		else {
+			add_random_number(&game);
+		}
 
-		add_random_number(&game);
 		draw(&game);
 		printf("\n");
 	}
