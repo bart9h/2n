@@ -109,12 +109,18 @@ int main()
 			game_init(&game);
 		}
 		else if (k == 'l') {
-			for (int j = 0; j < 4; ++j) {
+			for (int j = 0;  j < 4;  ++j) {
 				unsigned* line = game.board[j];
 				for (int i = 3; i > 0; --i) {
 					while (line[i] == 0) {
 						if (shift_right(line, i) == false)
 							break;
+					}
+				}
+				for (int i = 3;  i > 0;  --i) {
+					if (line[i] == line[i-1]  &&  line[i] != 0) {
+						line[i] *= 2;
+						shift_right(line, i-1);
 					}
 				}
 			}
