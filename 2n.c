@@ -155,7 +155,7 @@ bool add_random_number (struct Game* game)
 					--free_idx;
 				}
 				else {
-					game->board[j][i] = random_int(10) < 9 ? 2 : 4;
+					game->board[j][i] = random_int(10) < 9 ? 1 : 2;
 					return true;
 				}
 			}
@@ -174,7 +174,7 @@ void draw (struct Game* game)
 			if (n == 0)
 				printf("     .");
 			else
-				printf("  %4d", n);
+				printf("  %4d", 1<<n);
 		}
 		printf("\n");
 	}
@@ -228,7 +228,7 @@ int main()
 				itr_init(itr, game, key, idx);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					if (itr_get(itr) == itr_get_next(itr)  &&  itr_get(itr) != 0) {
-						itr_set(itr, itr_get(itr) * 2);
+						itr_set(itr, itr_get(itr)+1);
 						itr_move(itr);
 						itr_shift(*itr);
 						moved = true;
