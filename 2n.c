@@ -31,6 +31,14 @@ void itr_init (struct Itr* itr, struct Game* game, char dir, unsigned idx)
 			itr->j = idx;
 			itr->i = 0;
 			break;
+		case 'j':
+			itr->j = 3;
+			itr->i = idx;
+			break;
+		case 'k':
+			itr->j = 0;
+			itr->i = idx;
+			break;
 		default:
 			ERROR;
 	}
@@ -43,6 +51,10 @@ bool itr_is_last (struct Itr* itr)
 			return (itr->i == 0);
 		case 'h':
 			return (itr->i == 3);
+		case 'j':
+			return (itr->j == 0);
+		case 'k':
+			return (itr->j == 3);
 	}
 	ERROR;
 }
@@ -59,6 +71,10 @@ bool itr_move (struct Itr* itr)
 		case 'h':
 			++itr->i;
 			return true;
+		case 'j':
+			return --itr->j;
+		case 'k':
+			return ++itr->j;
 	}
 	ERROR;
 }
@@ -83,6 +99,10 @@ unsigned itr_get_next (struct Itr* itr)
 			return itr->game->board[itr->j][itr->i-1];
 		case 'h':
 			return itr->game->board[itr->j][itr->i+1];
+		case 'j':
+			return itr->game->board[itr->j-1][itr->i];
+		case 'k':
+			return itr->game->board[itr->j+1][itr->i];
 	}
 	ERROR;
 }
@@ -181,19 +201,19 @@ int main()
 	printf("\n");
 
 	while(1) {
-		char k = RawKb_GetChar();
-		if (k == 'q') { /* quit */
+		char key = RawKb_GetChar();
+		if (key == 'q') { /* quit */
 			break;
 		}
-		else if (k == 'c') { /* clear board */
+		else if (key == 'c') { /* clear board */
 			game_init(game);
 		}
-		else if (k == 'l'  ||  k == 'h') {
-			for (int j = 0;  j < 4;  ++j) {
+		else if (key == 'l'  ||  key == 'h'  ||  key == 'k'  ||  key == 'j') {
+			for (int idx = 0;  idx < 4;  ++idx) {
 				struct Itr the_itr;
 				struct Itr* itr = &the_itr;
 
-				itr_init(itr, game, k, j);
+				itr_init(itr, game, key, idx);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					while (itr_get(itr) == 0) {
 						if (itr_shift(*itr) == false)
@@ -201,7 +221,7 @@ int main()
 					}
 				}
 
-				itr_init(itr, game, k, j);
+				itr_init(itr, game, key, idx);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					if (itr_get(itr) == itr_get_next(itr)  &&  itr_get(itr) != 0) {
 						itr_set(itr, itr_get(itr) * 2);
