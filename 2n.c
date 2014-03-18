@@ -167,6 +167,7 @@ bool add_random_number (struct Game* game)
 
 void draw (struct Game* game)
 {
+	printf("\e[1;1f\e[2J");
 	for (unsigned j = 0;  j < 4;  ++j) {
 		for (unsigned i = 0;  i < 4;  ++i) {
 			unsigned n = game->board[j][i];
@@ -209,6 +210,7 @@ int main()
 			game_init(game);
 		}
 		else if (key == 'l'  ||  key == 'h'  ||  key == 'k'  ||  key == 'j') {
+			bool moved = false;
 			for (int idx = 0;  idx < 4;  ++idx) {
 				struct Itr the_itr;
 				struct Itr* itr = &the_itr;
@@ -216,7 +218,9 @@ int main()
 				itr_init(itr, game, key, idx);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					while (itr_get(itr) == 0) {
-						if (itr_shift(*itr) == false)
+						if (itr_shift(*itr))
+							moved = true;
+						else
 							break;
 					}
 				}
@@ -227,12 +231,13 @@ int main()
 						itr_set(itr, itr_get(itr) * 2);
 						itr_move(itr);
 						itr_shift(*itr);
+						moved = true;
 					}
 				}
 			}
-		}
-		else {
-			add_random_number(game);
+
+			if (moved)
+				add_random_number(game);
 		}
 
 		draw(game);
