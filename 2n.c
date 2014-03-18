@@ -76,6 +76,18 @@ void game_init (struct Game* game)
 	add_random_number(game);
 }
 
+bool shift_right(unsigned* line, unsigned pos)
+{
+	bool all_zeros = true;
+	for (int i = pos; i > 0; --i) {
+		line[i] = line[i-1];
+		if (line[i] != 0)
+			all_zeros = false;
+	}
+	line[0] = 0;
+	return !all_zeros;
+}
+
 int main()
 {
 	srand(time(0));
@@ -101,14 +113,7 @@ int main()
 				unsigned* line = game.board[j];
 				for (int i = 3; i > 0; --i) {
 					while (line[i] == 0) {
-						bool all_zeros = true;
-						for (int n = i; n > 0; --n) {
-							line[n] = line[n-1];
-							if (line[n] != 0)
-								all_zeros = false;
-						}
-						line[0] = 0;
-						if (all_zeros)
+						if (shift_right(line, i) == false)
 							break;
 					}
 				}
