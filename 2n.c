@@ -68,15 +68,20 @@ void draw (struct Game* game)
 	}
 }
 
+void game_init (struct Game* game)
+{
+	memset(game, 0, sizeof(struct Game));
+
+	add_random_number(game);
+	add_random_number(game);
+}
+
 int main()
 {
-	struct Game game;
-	memset(&game, 0, sizeof(game));
-
 	srand(time(0));
 
-	add_random_number(&game);
-	add_random_number(&game);
+	struct Game game;
+	game_init(&game);
 
 	RawKb_Open(RAWKB_MODE_WAIT);
 
@@ -85,8 +90,11 @@ int main()
 
 	while(1) {
 		char k = RawKb_GetChar();
-		if (k == 'q') {
+		if (k == 'q') { /* quit */
 			break;
+		}
+		else if (k == 'c') { /* clear board */
+			game_init(&game);
 		}
 
 		add_random_number(&game);
