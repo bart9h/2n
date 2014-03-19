@@ -6,10 +6,14 @@
 #include "rawkb.h"
 
 #define ERROR assert("logic error"==0)
+#define MAX_2N_SIZE 16
+#define MIN_2N_SIZE 3
 
 struct Game
 {
-	unsigned board[4][4];
+	unsigned size;
+	unsigned new_size;
+	unsigned board[MAX_2N_SIZE][MAX_2N_SIZE];
 	char savefile[FILENAME_MAX];
 };
 
@@ -26,14 +30,14 @@ void itr_init (struct Itr* itr, struct Game* game, char dir, unsigned idx)
 	switch (itr->dir = dir) {
 		case 'l':
 			itr->j = idx;
-			itr->i = 3;
+			itr->i = game->size-1;
 			break;
 		case 'h':
 			itr->j = idx;
 			itr->i = 0;
 			break;
 		case 'j':
-			itr->j = 3;
+			itr->j = game->size-1;
 			itr->i = idx;
 			break;
 		case 'k':
@@ -51,11 +55,11 @@ bool itr_is_last (struct Itr* itr)
 		case 'l':
 			return (itr->i == 0);
 		case 'h':
-			return (itr->i == 3);
+			return (itr->i == itr->game->size-1);
 		case 'j':
 			return (itr->j == 0);
 		case 'k':
-			return (itr->j == 3);
+			return (itr->j == itr->game->size-1);
 	}
 	ERROR;
 }
@@ -126,8 +130,8 @@ unsigned free_cell_count (struct Game* game)
 {
 	unsigned count = 0;
 
-	for (unsigned j = 0;  j < 4;  ++j) {
-		for (unsigned i = 0;  i < 4;  ++i) {
+	for (unsigned j = 0;  j < game->size;  ++j) {
+		for (unsigned i = 0;  i < game->size;  ++i) {
 			if (game->board[j][i] == 0)
 				++count;
 		}
@@ -149,8 +153,8 @@ bool add_random_number (struct Game* game)
 
 	unsigned free_idx = random_int(free_count);
 
-	for (unsigned j = 0;  j < 4;  ++j) {
-		for (unsigned i = 0;  i < 4;  ++i) {
+	for (unsigned j = 0;  j < game->size;  ++j) {
+		for (unsigned i = 0;  i < game->size;  ++i) {
 			if (game->board[j][i] == 0) {
 				if (free_idx > 0) {
 					--free_idx;
@@ -177,8 +181,8 @@ void draw (struct Game* game)
 	};
 
 	printf("\e[1;1f\e[2J");
-	for (unsigned j = 0;  j < 4;  ++j) {
-		for (unsigned i = 0;  i < 4;  ++i) {
+	for (unsigned j = 0;  j < game->size;  ++j) {
+		for (unsigned i = 0;  i < game->size;  ++i) {
 			unsigned n = game->board[j][i];
 			printf("\e[%sm", colors[n]);
 			if (n == 0)
@@ -192,6 +196,8 @@ void draw (struct Game* game)
 
 void board_init (struct Game* game)
 {
+	game->size = game->new_size;
+
 	memset(game->board, 0, sizeof(game->board));
 
 	add_random_number(game);
@@ -202,8 +208,9 @@ void game_save (struct Game* game)
 {
 	FILE* F = fopen(game->savefile, "w");
 	if (F != NULL) {
-		for (int j = 0;  j < 4;  ++j) {
-			for (int i = 0;  i < 4;  ++i) {
+		fprintf(F, "%d\n", game->size);
+		for (int j = 0;  j < game->size;  ++j) {
+			for (int i = 0;  i < game->size;  ++i) {
 				fprintf(F, "%d,", game->board[j][i]);
 			}
 			fprintf(F, "\n");
@@ -216,14 +223,35 @@ void game_load (struct Game* game)
 {
 	FILE* F = fopen(game->savefile, "r");
 	if (F != NULL) {
-		for (int j = 0;  j < 4;  ++j) {
-			for (int i = 0;  i < 4;  ++i) {
+		fscanf(F, "%d\n", &game->size);
+		for (int j = 0;  j < game->size;  ++j) {
+			for (int i = 0;  i < game->size;  ++i) {
 				fscanf(F, "%d,", &game->board[j][i]);
 			}
 			fscanf(F, "\n");
 		}
 		fclose(F);
 	}
+}
+
+bool game_init (struct Game* game)
+{
+	game->new_size = 4;
+
+	char* size_env = getenv("SIZE");
+	if (size_env != NULL) {
+		int size_arg = atoi(size_env);
+		if (size_arg < MIN_2N_SIZE || size_arg > MAX_2N_SIZE) {
+			fprintf(stderr, "size must be >= 3 and <= 16\n");
+			return false;
+		}
+		else {
+			game->new_size = size_arg;
+		}
+	}
+
+	board_init(game);
+	return true;
 }
 
 int main()
@@ -234,7 +262,9 @@ int main()
 	struct Game* game = &game_data;
 	sprintf(game->savefile, "%s/.2nrc", getenv("HOME"));
 
-	board_init(game);
+	if (!game_init(game))
+		return 1;
+
 	game_load(game);
 
 	RawKb_Open(RAWKB_MODE_WAIT);
@@ -253,7 +283,7 @@ int main()
 		}
 		else if (key == 'l'  ||  key == 'h'  ||  key == 'k'  ||  key == 'j') {
 			bool moved = false;
-			for (int idx = 0;  idx < 4;  ++idx) {
+			for (int idx = 0;  idx < game->size;  ++idx) {
 				struct Itr the_itr;
 				struct Itr* itr = &the_itr;
 
