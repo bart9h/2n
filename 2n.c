@@ -196,8 +196,8 @@ bool is_game_over (struct Game* game)
 			||  game->board[j][i] == game->board[j][i+1])
 				return false;
 		}
-		if (game->board[0][j] == game->board[0][j+1]
-		||  game->board[j][0] == game->board[j+1][0])
+		if (game->board[game->size-1][j] == game->board[game->size-1][j+1]
+		||  game->board[j][game->size-1] == game->board[j+1][game->size-1])
 			return false;
 	}
 
