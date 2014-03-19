@@ -8,7 +8,7 @@ http://github.com/bart9h/2n
 
 ## How to play
 
-Use vi arrow keys (`h`, `j`, `k`, `l`) to play.
+Use `w`, `a`, `s`, `d` or vi arrow keys (`h`, `j`, `k`, `l`) to play.
 
 `n` resets the board.
 

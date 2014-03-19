@@ -345,6 +345,10 @@ int main()
 	draw(game);
 	printf("\n");
 
+	/* used to accept wasd keys and translate to hjkl */
+	const char* arrows = "khjlwasd";
+	char* arrows_ptr;
+
 	while(1) {
 		char key = RawKb_GetChar();
 		if (key == 'q') { /* quit */
@@ -354,7 +358,12 @@ int main()
 		else if (key == 'n') { /* new game */
 			board_init(game);
 		}
-		else if (key == 'l'  ||  key == 'h'  ||  key == 'k'  ||  key == 'j') {
+		else if ((arrows_ptr = strchr(arrows, key)) != NULL) {
+
+			/* translate wasd to hjkl */
+			if (arrows_ptr - arrows >= 4)
+				key = *(arrows_ptr-4);
+
 			bool moved = false;
 			for (int idx = 0;  idx < game->size;  ++idx) {
 				struct Itr the_itr;
