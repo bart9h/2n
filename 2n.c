@@ -204,6 +204,17 @@ bool is_game_over (struct Game* game)
 	return true;
 }
 
+bool cell_has_equal_neighbour (struct Game* game, unsigned j, unsigned i)
+{
+	unsigned n = game->board[j][i];
+	unsigned M = game->size-1;
+	return
+		(j < M && n == game->board[j+1][i]) ||
+		(j > 0 && n == game->board[j-1][i]) ||
+		(i < M && n == game->board[j][i+1]) ||
+		(i > 0 && n == game->board[j][i-1]);
+}
+
 void draw (struct Game* game)
 {
 	static const char* colors[] = {
@@ -211,7 +222,7 @@ void draw (struct Game* game)
 		"0;37", "1;37", "0;36", "1;36", // 2, 4, 8, 16
 		"0;34", "1;34", "0;32", "1;32", // 32, 64, 128, 256
 		"0;33", "1;33", "0;31", "1;31", // 512, 1024, 2048, 4096
-		"1;35", "1;45", NULL // 8192, !!!!!!
+		"0;35", "1;35", "1;35", "1;35"  // 8192...
 	};
 
 	printf("\e[1;1f\e[2J\e[0m");
@@ -225,9 +236,11 @@ void draw (struct Game* game)
 			unsigned n = game->board[j][i];
 			printf("\e[%sm", colors[n]);
 			if (n == 0)
-				printf("     .");
-			else
-				printf("  %4d", 1<<n);
+				printf("    . ");
+			else {
+				bool b = cell_has_equal_neighbour(game, j, i);
+				printf("%c%4d%c", b?'[':' ', 1<<n, b?']':' ');
+			}
 		}
 		printf("\n");
 	}
