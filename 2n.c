@@ -14,6 +14,8 @@ struct Game
 	unsigned size;
 	unsigned new_size;
 	unsigned board[MAX_2N_SIZE][MAX_2N_SIZE];
+	unsigned score;
+	unsigned max_scores[MAX_2N_SIZE];
 	char savefile[FILENAME_MAX];
 };
 
@@ -170,6 +172,13 @@ bool add_random_number (struct Game* game)
 	ERROR;
 }
 
+void score_add (struct Game* game, unsigned value)
+{
+	game->score += value;
+	if (game->score > game->max_scores[game->size])
+		game->max_scores[game->size] = game->score;
+}
+
 void draw (struct Game* game)
 {
 	static const char* colors[] = {
@@ -180,7 +189,11 @@ void draw (struct Game* game)
 		"1;35", "1;45", NULL // 8192, !!!!!!
 	};
 
-	printf("\e[1;1f\e[2J");
+	printf("\e[1;1f\e[2J\e[0m");
+	printf("\e[1;30mscore: \e[1;37m%d\e[1;30m, max_score: \e[1;37m%d\n",
+			game->score,
+			game->max_scores[game->size]
+	);
 	for (unsigned j = 0;  j < game->size;  ++j) {
 		for (unsigned i = 0;  i < game->size;  ++i) {
 			unsigned n = game->board[j][i];
@@ -197,6 +210,7 @@ void draw (struct Game* game)
 void board_init (struct Game* game)
 {
 	game->size = game->new_size;
+	game->score = 0;
 
 	memset(game->board, 0, sizeof(game->board));
 
@@ -208,13 +222,25 @@ void game_save (struct Game* game)
 {
 	FILE* F = fopen(game->savefile, "w");
 	if (F != NULL) {
+
+		/* scores */
+		fprintf(F, "%d\n", game->score);
+		for (int size = MIN_2N_SIZE;  size <= MAX_2N_SIZE;  ++size) {
+			fprintf(F, "%d=%d,", size, game->max_scores[size]);
+		}
+		fprintf(F, "\n");
+
+		/* board size */
 		fprintf(F, "%d\n", game->size);
+
+		/* board content */
 		for (int j = 0;  j < game->size;  ++j) {
 			for (int i = 0;  i < game->size;  ++i) {
 				fprintf(F, "%d,", game->board[j][i]);
 			}
 			fprintf(F, "\n");
 		}
+
 		fclose(F);
 	}
 }
@@ -223,7 +249,20 @@ void game_load (struct Game* game)
 {
 	FILE* F = fopen(game->savefile, "r");
 	if (F != NULL) {
+
+		/* scores */
+		fscanf(F, "%d\n", &game->score);
+		for (int size = MIN_2N_SIZE;  size <= MAX_2N_SIZE;  ++size) {
+			int saved_size = 0;
+			fscanf(F, "%d=%d,", &saved_size, &game->max_scores[size]);
+			assert(saved_size == size);
+		}
+		fscanf(F, "\n");
+
+		/* board size */
 		fscanf(F, "%d\n", &game->size);
+
+		/* board content */
 		for (int j = 0;  j < game->size;  ++j) {
 			for (int i = 0;  i < game->size;  ++i) {
 				fscanf(F, "%d,", &game->board[j][i]);
@@ -250,7 +289,10 @@ bool game_init (struct Game* game)
 		}
 	}
 
+	memset(game->max_scores, 0, sizeof(game->max_scores));
+
 	board_init(game);
+
 	return true;
 }
 
@@ -301,6 +343,7 @@ int main()
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					if (itr_get(itr) == itr_get_next(itr)  &&  itr_get(itr) != 0) {
 						itr_set(itr, itr_get(itr)+1);
+						score_add(game, 1 << itr_get(itr));
 						itr_move(itr);
 						itr_shift(*itr);
 						moved = true;
