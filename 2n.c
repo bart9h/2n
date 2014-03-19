@@ -15,7 +15,7 @@ struct Game
 	unsigned new_size;
 	unsigned board[MAX_2N_SIZE][MAX_2N_SIZE];
 	unsigned score;
-	unsigned max_scores[MAX_2N_SIZE];
+	unsigned max_scores[MAX_2N_SIZE+1];
 	char savefile[FILENAME_MAX];
 };
 
