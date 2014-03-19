@@ -10,7 +10,7 @@ http://github.com/bart9h/2n
 
 Use vi arrow keys (`h`, `j`, `k`, `l`) to play.
 
-`c` resets the board.
+`n` resets the board.
 
 `q` quits.
 

@@ -179,6 +179,31 @@ void score_add (struct Game* game, unsigned value)
 		game->max_scores[game->size] = game->score;
 }
 
+bool is_game_over (struct Game* game)
+{
+	/* check for empty cells */
+	for (unsigned j = 0;  j < game->size;  ++j) {
+		for (unsigned i = 0;  i < game->size;  ++i) {
+			if (game->board[j][i] == 0)
+				return false;
+		}
+	}
+
+	/* check for adjacent numbers */
+	for (unsigned j = 0;  j < game->size-1;  ++j) {
+		for (unsigned i = 0;  i < game->size-1;  ++i) {
+			if (game->board[j][i] == game->board[j+1][i]
+			||  game->board[j][i] == game->board[j][i+1])
+				return false;
+		}
+		if (game->board[0][j] == game->board[0][j+1]
+		||  game->board[j][0] == game->board[j+1][0])
+			return false;
+	}
+
+	return true;
+}
+
 void draw (struct Game* game)
 {
 	static const char* colors[] = {
@@ -194,6 +219,7 @@ void draw (struct Game* game)
 			game->score,
 			game->max_scores[game->size]
 	);
+
 	for (unsigned j = 0;  j < game->size;  ++j) {
 		for (unsigned i = 0;  i < game->size;  ++i) {
 			unsigned n = game->board[j][i];
@@ -204,6 +230,11 @@ void draw (struct Game* game)
 				printf("  %4d", 1<<n);
 		}
 		printf("\n");
+	}
+
+	if (is_game_over(game)) {
+		printf("\e[0;1;41m G A M E    O V E R \e[0m  (press N for new game)");
+		fflush(stdout);
 	}
 }
 
@@ -320,7 +351,7 @@ int main()
 			game_save(game);
 			break;
 		}
-		else if (key == 'c') { /* clear board */
+		else if (key == 'n') { /* new game */
 			board_init(game);
 		}
 		else if (key == 'l'  ||  key == 'h'  ||  key == 'k'  ||  key == 'j') {
