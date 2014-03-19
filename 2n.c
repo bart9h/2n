@@ -10,6 +10,7 @@
 struct Game
 {
 	unsigned board[4][4];
+	char savefile[FILENAME_MAX];
 };
 
 struct Itr
@@ -189,12 +190,40 @@ void draw (struct Game* game)
 	}
 }
 
-void game_init (struct Game* game)
+void board_init (struct Game* game)
 {
-	memset(game, 0, sizeof(struct Game));
+	memset(game->board, 0, sizeof(game->board));
 
 	add_random_number(game);
 	add_random_number(game);
+}
+
+void game_save (struct Game* game)
+{
+	FILE* F = fopen(game->savefile, "w");
+	if (F != NULL) {
+		for (int j = 0;  j < 4;  ++j) {
+			for (int i = 0;  i < 4;  ++i) {
+				fprintf(F, "%d,", game->board[j][i]);
+			}
+			fprintf(F, "\n");
+		}
+		fclose(F);
+	}
+}
+
+void game_load (struct Game* game)
+{
+	FILE* F = fopen(game->savefile, "r");
+	if (F != NULL) {
+		for (int j = 0;  j < 4;  ++j) {
+			for (int i = 0;  i < 4;  ++i) {
+				fscanf(F, "%d,", &game->board[j][i]);
+			}
+			fscanf(F, "\n");
+		}
+		fclose(F);
+	}
 }
 
 int main()
@@ -203,7 +232,10 @@ int main()
 
 	struct Game game_data;
 	struct Game* game = &game_data;
-	game_init(game);
+	sprintf(game->savefile, "%s/.2nrc", getenv("HOME"));
+
+	board_init(game);
+	game_load(game);
 
 	RawKb_Open(RAWKB_MODE_WAIT);
 
@@ -213,10 +245,11 @@ int main()
 	while(1) {
 		char key = RawKb_GetChar();
 		if (key == 'q') { /* quit */
+			game_save(game);
 			break;
 		}
 		else if (key == 'c') { /* clear board */
-			game_init(game);
+			board_init(game);
 		}
 		else if (key == 'l'  ||  key == 'h'  ||  key == 'k'  ||  key == 'j') {
 			bool moved = false;
