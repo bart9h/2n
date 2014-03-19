@@ -382,6 +382,7 @@ int main()
 				struct Itr the_itr;
 				struct Itr* itr = &the_itr;
 
+				/* move over empty spaces */
 				itr_init(itr, game, key, idx);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					while (itr_get(itr) == 0) {
@@ -392,13 +393,15 @@ int main()
 					}
 				}
 
+				/* collapse equals */
 				itr_init(itr, game, key, idx);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					if (itr_get(itr) == itr_get_next(itr)  &&  itr_get(itr) != 0) {
 						itr_set(itr, itr_get(itr)+1);
 						score_add(game, 1 << itr_get(itr));
-						itr_move(itr);
-						itr_shift(*itr);
+						struct Itr itr_copy = *itr;
+						itr_move(&itr_copy);
+						itr_shift(itr_copy);
 						moved = true;
 					}
 				}
