@@ -17,6 +17,7 @@ struct Game
 	unsigned score;
 	unsigned max_scores[MAX_2N_SIZE+1];
 	char savefile[FILENAME_MAX];
+	bool fancy;
 };
 
 struct Itr
@@ -215,6 +216,22 @@ bool cell_has_equal_neighbour (struct Game* game, unsigned j, unsigned i)
 		(i > 0 && n == game->board[j][i-1]);
 }
 
+void draw_line (struct Game* game)
+{
+	printf("\e[1;30m+");
+	for (unsigned i = 0;  i < game->size;  ++i)
+		printf("------+");
+	printf("\n");
+}
+
+void draw_space (struct Game* game)
+{
+	printf("\e[1;30m|");
+	for (unsigned i = 0;  i < game->size;  ++i)
+		printf("      |");
+	printf("\n");
+}
+
 void draw (struct Game* game)
 {
 	static const char* colors[] = {
@@ -232,6 +249,13 @@ void draw (struct Game* game)
 	);
 
 	for (unsigned j = 0;  j < game->size;  ++j) {
+
+		if (game->fancy) {
+			draw_line(game);
+			draw_space(game);
+			printf("|");
+		}
+
 		for (unsigned i = 0;  i < game->size;  ++i) {
 			unsigned n = game->board[j][i];
 			printf("\e[%sm", colors[n]);
@@ -241,9 +265,15 @@ void draw (struct Game* game)
 				bool b = cell_has_equal_neighbour(game, j, i);
 				printf("%c%4d%c", b?'[':' ', 1<<n, b?']':' ');
 			}
+
+			if (game->fancy)
+				printf("\e[1;30m|");
 		}
 		printf("\n");
 	}
+
+	if (game->fancy)
+		draw_line(game);
 
 	if (is_game_over(game)) {
 		printf("\e[0;1;41m G A M E    O V E R \e[0m  (press N for new game)");
@@ -319,6 +349,7 @@ void game_load (struct Game* game)
 
 bool game_init (struct Game* game)
 {
+	game->fancy = false;
 	game->new_size = 4;
 
 	char* size_env = getenv("SIZE");
@@ -370,6 +401,9 @@ int main()
 		}
 		else if (key == 'n') { /* new game */
 			board_init(game);
+		}
+		else if (key == 'f') { /* new game */
+			game->fancy = !game->fancy;
 		}
 		else if ((arrows_ptr = strchr(arrows, key)) != NULL) {
 
