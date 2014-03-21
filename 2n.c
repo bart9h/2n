@@ -452,8 +452,10 @@ int main()
 				}
 			}
 
-			if (moved)
+			if (moved) {
 				add_random_number(game);
+				game_save(game);
+			}
 		}
 
 		draw(game);
