@@ -10,7 +10,9 @@ http://github.com/bart9h/2n
 
 Use `w`, `a`, `s`, `d` or vi arrow keys (`h`, `j`, `k`, `l`) to play.
 
-`n` resets the board.
+`f` toggles fancy mode.
+
+`n` resets the board (new game).
 
 `q` quits.
 

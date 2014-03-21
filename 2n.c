@@ -315,6 +315,9 @@ void game_save (struct Game* game)
 			fprintf(F, "\n");
 		}
 
+		/* fancy mode */
+		fprintf(F, "%d\n", game->fancy ? 1 : 0);
+
 		fclose(F);
 	}
 }
@@ -343,6 +346,14 @@ void game_load (struct Game* game)
 			}
 			fscanf(F, "\n");
 		}
+
+		/* fancy mode */
+		{
+			int d;
+			fscanf(F, "%d\n", &d);
+			game->fancy = (d != 0);
+		}
+
 		fclose(F);
 	}
 }
