@@ -17,7 +17,7 @@ struct Game
 	unsigned score;
 	unsigned max_scores[MAX_2N_SIZE+1];
 	char savefile[FILENAME_MAX];
-	bool fancy;
+	unsigned draw_mode;
 };
 
 struct Itr
@@ -243,14 +243,16 @@ void draw (struct Game* game)
 	};
 
 	printf("\e[1;1f\e[2J\e[0m");
-	printf("\e[1;30mscore: \e[1;37m%d\e[1;30m, max_score: \e[1;37m%d\n",
+	printf("\e[1;30m%s\e[1;37m%d\e[1;30m, %s\e[1;37m%d\n",
+			game->draw_mode ? "score: " : "s",
 			game->score,
+			game->draw_mode ? "max_score: " : "m",
 			game->max_scores[game->size]
 	);
 
 	for (unsigned j = 0;  j < game->size;  ++j) {
 
-		if (game->fancy) {
+		if (game->draw_mode == 2) {
 			draw_line(game);
 			draw_space(game);
 			printf("|");
@@ -260,19 +262,24 @@ void draw (struct Game* game)
 			unsigned n = game->board[j][i];
 			printf("\e[%sm", colors[n]);
 			if (n == 0)
-				printf("    . ");
+				printf("%s . ", game->draw_mode ? "   " : "");
 			else {
 				bool b = cell_has_equal_neighbour(game, j, i);
-				printf("%c%4d%c", b?'[':' ', 1<<n, b?']':' ');
+				printf("%c", b?'[':' ');
+				if (game->draw_mode)
+					printf("%4d", 1<<n);
+				else
+					printf("%x", n-1);
+				printf("%c", b?']':' ');
 			}
 
-			if (game->fancy)
+			if (game->draw_mode == 2)
 				printf("\e[1;30m|");
 		}
 		printf("\n");
 	}
 
-	if (game->fancy)
+	if (game->draw_mode == 2)
 		draw_line(game);
 
 	if (is_game_over(game)) {
@@ -315,8 +322,8 @@ void game_save (struct Game* game)
 			fprintf(F, "\n");
 		}
 
-		/* fancy mode */
-		fprintf(F, "%d\n", game->fancy ? 1 : 0);
+		/* draw_mode mode */
+		fprintf(F, "%d\n", game->draw_mode);
 
 		fclose(F);
 	}
@@ -347,12 +354,8 @@ void game_load (struct Game* game)
 			fscanf(F, "\n");
 		}
 
-		/* fancy mode */
-		{
-			int d;
-			fscanf(F, "%d\n", &d);
-			game->fancy = (d != 0);
-		}
+		/* draw_mode mode */
+		fscanf(F, "%d\n", &game->draw_mode);
 
 		fclose(F);
 	}
@@ -360,7 +363,7 @@ void game_load (struct Game* game)
 
 bool game_init (struct Game* game)
 {
-	game->fancy = false;
+	game->draw_mode = 1;
 	game->new_size = 4;
 
 	char* size_env = getenv("SIZE");
@@ -398,7 +401,6 @@ int main()
 	RawKb_Open(RAWKB_MODE_WAIT);
 
 	draw(game);
-	printf("\n");
 
 	/* used to accept wasd keys and translate to hjkl */
 	const char* arrows = "khjlwasd";
@@ -413,8 +415,8 @@ int main()
 		else if (key == 'n') { /* new game */
 			board_init(game);
 		}
-		else if (key == 'f') { /* new game */
-			game->fancy = !game->fancy;
+		else if (key == 'm') { /* draw modes */
+			game->draw_mode = (game->draw_mode+1)%3;
 		}
 		else if ((arrows_ptr = strchr(arrows, key)) != NULL) {
 

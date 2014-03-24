@@ -10,7 +10,7 @@ http://github.com/bart9h/2n
 
 Use `w`, `a`, `s`, `d` or vi arrow keys (`h`, `j`, `k`, `l`) to play.
 
-`f` toggles fancy mode.
+`m` to cycle through draw modes.
 
 `n` resets the board (new game).
 
