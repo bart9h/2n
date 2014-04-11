@@ -413,7 +413,14 @@ int main()
 			break;
 		}
 		else if (key == 'n') { /* new game */
-			board_init(game);
+			if (is_game_over(game)) {
+				board_init(game);
+			}
+			else {
+				printf("reset game? ");
+				if (getchar() == 'y')
+					board_init(game);
+			}
 		}
 		else if (key == 'm') { /* draw modes */
 			game->draw_mode = (game->draw_mode+1)%3;
