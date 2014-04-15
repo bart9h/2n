@@ -283,7 +283,10 @@ void draw (struct Game* game)
 		draw_line(game);
 
 	if (is_game_over(game)) {
-		printf("\e[0;1;41m G A M E    O V E R \e[0m  (press N for new game)");
+		if (game->draw_mode)
+			printf("\e[0;1;41m G A M E    O V E R \e[0m  (press N for new game)");
+		else
+			printf(" \e[0;31m_x__x__x_\e[0m ");
 		fflush(stdout);
 	}
 }
@@ -410,6 +413,7 @@ int main()
 		char key = RawKb_GetChar();
 		if (key == 'q') { /* quit */
 			game_save(game);
+			printf("\n");
 			break;
 		}
 		else if (key == 'n') { /* new game */
