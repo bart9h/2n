@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "game.h"
@@ -168,18 +169,6 @@ bool game_init (struct Game* game)
 {
 	game->draw_mode = 1;
 	game->new_size = 4;
-
-	char* size_env = getenv("SIZE");
-	if (size_env != NULL) {
-		int size_arg = atoi(size_env);
-		if (size_arg < MIN_2N_SIZE || size_arg > MAX_2N_SIZE) {
-			fprintf(stderr, "size must be >= 3 and <= 16\n");
-			return false;
-		}
-		else {
-			game->new_size = size_arg;
-		}
-	}
 
 	memset(game->max_scores, 0, sizeof(game->max_scores));
 

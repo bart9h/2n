@@ -86,10 +86,29 @@ int main()
 
 	struct Game game_data;
 	struct Game* game = &game_data;
-	sprintf(game->savefile, "%s/.2nrc", getenv("HOME"));
 
 	if (!game_init(game))
 		return 1;
+
+	/* board size config for new boards */
+	char* size_env = getenv("SIZE");
+	if (size_env != NULL) {
+		int size_arg = atoi(size_env);
+		if (size_arg < MIN_2N_SIZE || size_arg > MAX_2N_SIZE) {
+			fprintf(stderr, "size must be >= 3 and <= 16\n");
+			return false;
+		}
+		else {
+			game->new_size = size_arg;
+		}
+	}
+
+	/* location of the save file */
+	char* config_dir_env = getenv("XDG_CONFIG_HOME");
+	if (config_dir_env != NULL)
+		sprintf(game->savefile, "%s/2n", config_dir_env);
+	else
+		sprintf(game->savefile, "%s/.config/2n", getenv("HOME"));
 
 	game_load(game);
 
