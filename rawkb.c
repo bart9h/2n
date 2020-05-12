@@ -16,15 +16,13 @@ bool RawKb_Open (rawkb_mode_t mode)
 {
 	rawkb_data.mode = mode;
 
-	// le estado atual
+	// read current state
 	if(tcgetattr(STDIN_FILENO, &rawkb_data.tc_original) == -1) {
 		perror("tcgetattr");
 		return false;
 	}
 
 	struct termios tc;
-
-	// altera pra ler sem echo e nao esperar enter
 	tc = rawkb_data.tc_original;
 
 	// don't wait for <enter>
