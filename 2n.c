@@ -24,28 +24,28 @@ struct Itr
 {
 	struct Game* game;
 	unsigned j, i;
-	char dir;
+	char direction;
 };
 
-void itr_init (struct Itr* itr, struct Game* game, char dir, unsigned idx)
+void itr_init (struct Itr* itr, struct Game* game, char direction, unsigned index)
 {
 	itr->game = game;
-	switch (itr->dir = dir) {
+	switch (itr->direction = direction) {
 		case 'l':
-			itr->j = idx;
+			itr->j = index;
 			itr->i = game->size-1;
 			break;
 		case 'h':
-			itr->j = idx;
+			itr->j = index;
 			itr->i = 0;
 			break;
 		case 'j':
 			itr->j = game->size-1;
-			itr->i = idx;
+			itr->i = index;
 			break;
 		case 'k':
 			itr->j = 0;
-			itr->i = idx;
+			itr->i = index;
 			break;
 		default:
 			ERROR;
@@ -54,7 +54,7 @@ void itr_init (struct Itr* itr, struct Game* game, char dir, unsigned idx)
 
 bool itr_is_last (struct Itr* itr)
 {
-	switch (itr->dir) {
+	switch (itr->direction) {
 		case 'l':
 			return (itr->i == 0);
 		case 'h':
@@ -72,7 +72,7 @@ bool itr_move (struct Itr* itr)
 	if (itr_is_last(itr))
 		return false;
 
-	switch (itr->dir) {
+	switch (itr->direction) {
 		case 'l':
 			--itr->i;
 			return true;
@@ -87,9 +87,9 @@ bool itr_move (struct Itr* itr)
 	ERROR;
 }
 
-void itr_set (struct Itr* itr, unsigned n)
+void itr_set (struct Itr* itr, unsigned value)
 {
-	itr->game->board[itr->j][itr->i] = n;
+	itr->game->board[itr->j][itr->i] = value;
 }
 
 unsigned itr_get (struct Itr* itr)
@@ -102,7 +102,7 @@ unsigned itr_get_next (struct Itr* itr)
 	if (itr_is_last(itr))
 		ERROR;
 
-	switch (itr->dir) {
+	switch (itr->direction) {
 		case 'l':
 			return itr->game->board[itr->j][itr->i-1];
 		case 'h':
@@ -144,7 +144,8 @@ unsigned free_cell_count (struct Game* game)
 }
 
 unsigned random_int (unsigned n)
-{
+{// return a random integer from 0 to n-1
+
 	return (int) (n * (rand() / (RAND_MAX + 1.0)));
 }
 
@@ -436,12 +437,12 @@ int main()
 				key = *(arrows_ptr-4);
 
 			bool moved = false;
-			for (int idx = 0;  idx < game->size;  ++idx) {
+			for (int index = 0;  index < game->size;  ++index) {
 				struct Itr the_itr;
 				struct Itr* itr = &the_itr;
 
 				/* move over empty spaces */
-				itr_init(itr, game, key, idx);
+				itr_init(itr, game, key, index);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					while (itr_get(itr) == 0) {
 						if (itr_shift(*itr))
@@ -452,7 +453,7 @@ int main()
 				}
 
 				/* collapse equals */
-				itr_init(itr, game, key, idx);
+				itr_init(itr, game, key, index);
 				for (;  !itr_is_last(itr);  itr_move(itr)) {
 					if (itr_get(itr) == itr_get_next(itr)  &&  itr_get(itr) != 0) {
 						itr_set(itr, itr_get(itr)+1);
