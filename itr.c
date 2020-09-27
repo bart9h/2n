@@ -23,7 +23,7 @@ void itr_init (struct Itr* itr, struct Game* game, char direction, unsigned inde
 			itr->i = index;
 			break;
 		default:
-			ERROR;
+			LOGIC_ERROR;
 	}
 }
 
@@ -39,7 +39,7 @@ bool itr_is_last (struct Itr* itr)
 		case 'k':
 			return (itr->j == itr->game->size-1);
 	}
-	ERROR;
+	LOGIC_ERROR;
 }
 
 bool itr_move (struct Itr* itr)
@@ -59,7 +59,7 @@ bool itr_move (struct Itr* itr)
 		case 'k':
 			return ++itr->j;
 	}
-	ERROR;
+	LOGIC_ERROR;
 }
 
 void itr_set (struct Itr* itr, unsigned value)
@@ -75,7 +75,7 @@ unsigned itr_get (struct Itr* itr)
 unsigned itr_get_next (struct Itr* itr)
 {
 	if (itr_is_last(itr))
-		ERROR;
+		LOGIC_ERROR;
 
 	switch (itr->direction) {
 		case 'l':
@@ -87,7 +87,7 @@ unsigned itr_get_next (struct Itr* itr)
 		case 'k':
 			return itr->game->board[itr->j+1][itr->i];
 	}
-	ERROR;
+	LOGIC_ERROR;
 }
 
 bool itr_shift (struct Itr the_itr)

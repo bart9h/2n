@@ -46,7 +46,7 @@ bool add_random_number (struct Game* game)
 		}
 	}
 
-	ERROR;
+	LOGIC_ERROR;
 }
 
 void score_add (struct Game* game, unsigned value)

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define ERROR assert("logic error"==0)
+#define LOGIC_ERROR assert("logic error"==0)
 #define MAX_2N_SIZE 16
 #define MIN_2N_SIZE 3
 
