@@ -177,6 +177,36 @@ bool game_init (struct Game* game)
 	return true;
 }
 
+void game_rotate (struct Game* game)
+{
+	struct Game copy = *game;
+	int N = game->size - 1;
+
+	for (int i = 0;  i <= N;  ++i)
+		for (int j = 0;  j <= N;  ++j)
+			game->board[j][i] = copy.board[N-i][j];
+}
+
+void game_hflip (struct Game* game)
+{
+	struct Game copy = *game;
+	int N = game->size - 1;
+
+	for (int i = 0;  i <= N;  ++i)
+		for (int j = 0;  j <= N;  ++j)
+			game->board[j][i] = copy.board[j][N-i];
+}
+
+void game_vflip (struct Game* game)
+{
+	struct Game copy = *game;
+	int N = game->size - 1;
+
+	for (int i = 0;  i <= N;  ++i)
+		for (int j = 0;  j <= N;  ++j)
+			game->board[j][i] = copy.board[N-j][i];
+}
+
 void game_process_input (struct Game* game, unsigned char key)
 {
 	/* used to accept wasd keys and translate to hjkl */
@@ -195,6 +225,15 @@ void game_process_input (struct Game* game, unsigned char key)
 	}
 	else if (key == 'm') { /* draw modes */
 		game->draw_mode = (game->draw_mode+1)%3;
+	}
+	else if (key == 'r') { /* rotation */
+		game_rotate (game);
+	}
+	else if (key == 'f') { /* horizontal flip */
+		game_hflip (game);
+	}
+	else if (key == 'v') { /* vertical flip */
+		game_vflip (game);
 	}
 	else if ((arrows_ptr = strchr(arrows, key)) != NULL) {
 

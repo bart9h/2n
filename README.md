@@ -18,6 +18,8 @@ Use `w`, `a`, `s`, `d` or vi arrow keys (`h`, `j`, `k`, `l`) to play.
 
 `m` to cycle through draw modes (fancy, compact and ultra-compact).
 
+`r` rotates the board, `f` flips horizontally, `v` flips vertically.
+
 `n` resets the board (new game).
 
 `q` quits.
