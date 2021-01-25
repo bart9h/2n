@@ -22,7 +22,7 @@ Use `w`, `a`, `s`, `d` or vi arrow keys (`h`, `j`, `k`, `l`) to play.
 
 `q` quits.
 
-Game is automatically saved/loaded in `~/.2nrc`
+Game state is automatically saved/loaded in `~/.config/2nrc`.
 
 Set environment variable `SIZE` to change the board size
 (effective on next board init), must be between 3 and 16.
